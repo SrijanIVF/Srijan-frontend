@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import SectionCard from "./SectionCard";
 import { FileEdit, StickyNote, MessageCircle } from "lucide-react";
 
@@ -29,9 +30,9 @@ const PatientDetails = () => {
         ))}
       </div>
       <div className="flex flex-wrap justify-center gap-3 mt-6">
-        <button className="bg-[image:var(--gradient-pink)] text-white px-5 py-2 rounded-md text-sm font-semibold flex items-center gap-2 shadow hover:-translate-y-0.5 transition">
+        <Link to="/ce/fill-info" className="bg-[image:var(--gradient-pink)] text-white px-5 py-2 rounded-md text-sm font-semibold flex items-center gap-2 shadow hover:-translate-y-0.5 transition">
           <FileEdit className="h-4 w-4" /> Fill Info
-        </button>
+        </Link>
         <button className="bg-[hsl(272_45%_45%)] text-white px-5 py-2 rounded-md text-sm font-semibold flex items-center gap-2 shadow hover:-translate-y-0.5 transition">
           <StickyNote className="h-4 w-4" /> Add Notes
         </button>

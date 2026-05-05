@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import CEAgentDashboard from "./pages/CEAgentDashboard";
 import NotFound from "./pages/NotFound.tsx";
 import Login from "./pages/Auth/Login.tsx";
+import FillInfo from "./pages/FillInfo.tsx";
 
 const queryClient = new QueryClient();
 
@@ -19,6 +20,7 @@ const App = () => (
           <Route path="/" element={<Login />} />
           <Route path="/ce" element={<CEAgentDashboard />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          <Route path="/ce/fill-info" element={<FillInfo />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

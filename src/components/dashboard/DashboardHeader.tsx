@@ -20,7 +20,7 @@ const DashboardHeader = () => {
           <a href="/ce" className="flex items-center gap-2">
             <Home className="h-5 w-5" />
             <h1 className="text-2xl font-bold tracking-wide">
-              CRYSTA CRM
+              SRIJAN CRM
             </h1>
           </a>
         </div>
