@@ -1,27 +1,89 @@
 import SectionCard from "./SectionCard";
 import { FileEdit, StickyNote, MessageCircle, Send } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
-const rowsLeft = [
-  ["Lead ID", "92D037"],
-  ["City", "Delhi"],
-  ["Treatment", "IVF"],
-  ["Followup Date", "2026-04-28"],
-  ["Patient Name", "Test"],
-  ["Relative Name", "Test"],
-];
-const rowsRight = [
-  ["Call Status", "CFresh"],
-  ["Area", "1--Delhi"],
-  ["Last Call Date", "NA"],
-  ["Lead Source", "Crysta"],
-  ["Spouse Name", "NA"],
-];
+interface PatientData {
+  uid?: string;
+  patient_city_name?: string | null;
+  treatment_city?: string | null;
+  followup_datetime?: string | null;
+  patient_name?: string | null;
+  spouse_name?: string | null;
+  patient_status?: string | null;
+  source?: string | null;
+  user_name?: string | null;
+  main_mobile?: string | null;
+  updated_at?: string | null;
+  [k: string]: unknown;
+}
+
+const fmt = (v: unknown) =>
+  v === null || v === undefined || v === "" ? "NA" : String(v);
+
+const fmtDate = (v?: string | null) => {
+  if (!v) return "NA";
+  const d = new Date(v);
+  return isNaN(d.getTime()) ? "NA" : d.toLocaleString();
+};
 
 const PatientDetails = () => {
   const [notesOpen, setNotesOpen] = useState(false);
+  const [data, setData] = useState<PatientData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    const load = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const token =
+          localStorage.getItem("token") ||
+          localStorage.getItem("access_token") ||
+          localStorage.getItem("authToken") ||
+          "";
+        const res = await fetch(
+          "https://api.srijanivfcentre.com/api/v1/lead/patient-next-dashboard/",
+          {
+            signal: controller.signal,
+            headers: {
+              "Content-Type": "application/json",
+              ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            },
+          }
+        );
+        if (!res.ok) throw new Error(`Request failed (${res.status})`);
+        const json = await res.json();
+        setData(json?.data ?? json);
+      } catch (e) {
+        if ((e as Error).name === "AbortError") return;
+        setError((e as Error).message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
+    return () => controller.abort();
+  }, []);
+
+  const rowsLeft: [string, string][] = [
+    ["Lead ID", fmt(data?.uid)],
+    ["City", fmt(data?.patient_city_name)],
+    ["Treatment", fmt((data)?.treatment_name ?? "NA")],
+    ["Followup Date", fmtDate(data?.followup_datetime)],
+    ["Patient Name", fmt(data?.patient_name)],
+    ["Relative Name", fmt(data?.spouse_name)],
+  ];
+  const rowsRight: [string, string][] = [
+    ["Call Status", fmt(data?.patient_status)],
+    ["Area", fmt(data?.patient_city_name)],
+    ["Last Call Date", fmtDate(data?.updated_at)],
+    ["Lead Source", fmt(data?.user_name)],
+    ["Spouse Name", fmt(data?.spouse_name)],
+  ];
 
   const systemLogs = [
     { date: "2025-08-11 : 17:41:04", who: "PROSPACT", action: "Dial Outgoing Call on : XXXXXX5997", tag: "Dialed Outgoing Call" },
@@ -41,6 +103,8 @@ const PatientDetails = () => {
 
   return (
     <SectionCard title="Patient Details">
+      {loading && <p className="text-sm text-muted-foreground">Loading patient details…</p>}
+      {error && <p className="text-sm text-destructive">Failed to load: {error}</p>}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 text-sm">
         {rowsLeft.map(([k, v]) => (
           <p key={k}><span className="text-muted-foreground">{k}: </span><span className="font-semibold">{v}</span></p>

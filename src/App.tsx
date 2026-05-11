@@ -5,7 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import CEAgentDashboard from "./pages/CEAgentDashboard";
 import NotFound from "./pages/NotFound.tsx";
-import Login from "./pages/Auth/Login.tsx";
+import Login from "./pages/Login.tsx";
 import FillInfo from "./pages/FillInfo.tsx";
 import AllLeads from "./pages/AllLeads.tsx";
 
@@ -19,6 +19,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Login />} />
+          <Route path="/login" element={<Login />} />
           <Route path="/ce" element={<CEAgentDashboard />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="/ce/fill-info" element={<FillInfo />} />

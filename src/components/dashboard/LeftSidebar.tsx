@@ -19,11 +19,11 @@ interface LeftSidebarProps {
 const items = [
   { label: "Pause", icon: Pause, style: "bg-[image:var(--gradient-green)] text-white border-transparent" },
   { label: "Your Report Card", icon: LogIn, style: "bg-card text-foreground" },
-  { label: "Create Kaizen", icon: PlusCircle, style: "bg-card text-foreground" },
-  { label: "CE Kaizen", icon: CheckCircle2, style: "bg-card text-foreground" },
+  // { label: "Create Kaizen", icon: PlusCircle, style: "bg-card text-foreground" },
+  // { label: "CE Kaizen", icon: CheckCircle2, style: "bg-card text-foreground" },
   { label: "Call Recording", icon: Mic, style: "bg-card text-foreground" },
   { label: "Send message to patients", icon: MessageSquare, style: "bg-[image:var(--gradient-blue)] text-white border-transparent" },
-  { label: "Conversion", icon: ArrowLeftRight, style: "bg-[image:var(--gradient-pink)] text-white border-transparent" },
+  // { label: "Conversion", icon: ArrowLeftRight, style: "bg-[image:var(--gradient-pink)] text-white border-transparent" },
 ];
 
 const LeftSidebar = ({ open, onOpenChange }: LeftSidebarProps) => {
@@ -49,7 +49,7 @@ const LeftSidebar = ({ open, onOpenChange }: LeftSidebarProps) => {
             </button>
           ))}
 
-          <div className="mt-4 p-4 rounded-xl border border-border bg-card space-y-3">
+          {/* <div className="mt-4 p-4 rounded-xl border border-border bg-card space-y-3">
             <h3 className="text-sm font-semibold text-[hsl(var(--brand-blue))]">City Wise Leads</h3>
             <input
               value={city}
@@ -60,7 +60,7 @@ const LeftSidebar = ({ open, onOpenChange }: LeftSidebarProps) => {
             <button className="w-full bg-[image:var(--gradient-pink)] text-white py-2 rounded-md text-sm font-semibold hover:shadow-md transition">
               Submit
             </button>
-          </div>
+          </div> */}
         </div>
       </SheetContent>
     </Sheet>
