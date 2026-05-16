@@ -12,7 +12,7 @@ type Urgency = "SuperCritical" | "Urgent" | "Normal";
 type RowStatus =
     | "Appointment Convert"
     | "Appointment Missed"
-    | "CFresh"
+    | "Fresh"
     | "New";
 
 interface Lead {
@@ -39,7 +39,7 @@ const LEADS: Lead[] = [
 const rowBg: Record<RowStatus, string> = {
     "Appointment Convert": "bg-[hsl(130_60%_82%)]",
     "Appointment Missed": "bg-[hsl(0_85%_88%)]",
-    CFresh: "bg-[hsl(25_95%_70%)]",
+    Fresh: "bg-[hsl(25_95%_70%)]",
     New: "bg-[hsl(195_75%_82%)]",
 };
 
@@ -95,7 +95,7 @@ const AllLeads = () => {
                                 <SelectItem value="all">All Status</SelectItem>
                                 <SelectItem value="Appointment Convert">Appointment Convert</SelectItem>
                                 <SelectItem value="Appointment Missed">Appointment Missed</SelectItem>
-                                <SelectItem value="CFresh">CFresh</SelectItem>
+                                <SelectItem value="Fresh">Fresh</SelectItem>
                                 <SelectItem value="New">New</SelectItem>
                             </SelectContent>
                         </Select>
