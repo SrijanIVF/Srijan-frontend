@@ -187,7 +187,7 @@ const AllLeads = () => {
                                             </button>
                                         </td>
                                         <td className="px-3 py-2 text-center">
-                                            <Link to="/ce/fill-info" aria-label="edit" className="inline-flex">
+                                            <Link to="/agent/fill-info" aria-label="edit" className="inline-flex">
                                                 <Pencil className="h-4 w-4" />
                                             </Link>
                                         </td>

@@ -109,7 +109,7 @@ const FillInfo = () => {
             <main className="flex-1 container py-6 space-y-6">
                 <div className="flex items-center justify-between">
                     <Link
-                        to="/ce"
+                        to="/agent"
                         className="inline-flex items-center gap-2 text-sm font-semibold text-[hsl(var(--brand-purple))] hover:text-[hsl(var(--brand-pink))] transition"
                     >
                         <ArrowLeft className="h-4 w-4" /> Back to Dashboard

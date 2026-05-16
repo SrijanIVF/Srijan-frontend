@@ -20,11 +20,12 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Login />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/ce" element={<CEAgentDashboard />} />
+          <Route path="/agent" element={<CEAgentDashboard />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="/ce/fill-info" element={<FillInfo />} />
-          <Route path="/ce/all-leads" element={<AllLeads />} />
+          <Route path="/agent/fill-info" element={<FillInfo />} />
+          <Route path="/agent/all-leads" element={<AllLeads />} />
           <Route path="*" element={<NotFound />} />
+          <Route path="/manager" element={<CEAgentDashboard />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>

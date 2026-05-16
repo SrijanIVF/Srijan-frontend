@@ -2,6 +2,7 @@ import SectionCard from "./SectionCard";
 import { FileEdit, StickyNote, MessageCircle, Send } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
+import {getPatientNextDashboard} from "@/lib/auth"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 interface PatientData {
@@ -36,36 +37,32 @@ const PatientDetails = () => {
 
   useEffect(() => {
     const controller = new AbortController();
+
     const load = async () => {
       try {
         setLoading(true);
         setError(null);
-        const token =
-          localStorage.getItem("token") ||
-          localStorage.getItem("access_token") ||
-          localStorage.getItem("authToken") ||
-          "";
-        const res = await fetch(
-          "https://api.srijanivfcentre.com/api/v1/lead/patient-next-dashboard/",
-          {
-            signal: controller.signal,
-            headers: {
-              "Content-Type": "application/json",
-              ...(token ? { Authorization: `Bearer ${token}` } : {}),
-            },
-          }
-        );
-        if (!res.ok) throw new Error(`Request failed (${res.status})`);
-        const json = await res.json();
-        setData(json?.data ?? json);
+
+        const response =
+          await getPatientNextDashboard(
+            controller.signal
+          );
+
+        setData(response);
+
+        console.log(response);
       } catch (e) {
-        if ((e as Error).name === "AbortError") return;
+        if ((e as Error).name === "AbortError")
+          return;
+
         setError((e as Error).message);
       } finally {
         setLoading(false);
       }
     };
+
     load();
+
     return () => controller.abort();
   }, []);
 
@@ -114,7 +111,7 @@ const PatientDetails = () => {
         ))}
       </div>
       <div className="flex flex-wrap justify-center gap-3 mt-6">
-        <Link to="/ce/fill-info" className="bg-[image:var(--gradient-pink)] text-white px-5 py-2 rounded-md text-sm font-semibold flex items-center gap-2 shadow hover:-translate-y-0.5 transition">
+        <Link to="/agent/fill-info" className="bg-[image:var(--gradient-pink)] text-white px-5 py-2 rounded-md text-sm font-semibold flex items-center gap-2 shadow hover:-translate-y-0.5 transition">
           <FileEdit className="h-4 w-4" /> Fill Info
         </Link>
         <button onClick={() => setNotesOpen(true)} className="bg-[hsl(272_45%_45%)] text-white px-5 py-2 rounded-md text-sm font-semibold flex items-center gap-2 shadow hover:-translate-y-0.5 transition">

@@ -1,10 +1,13 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { login } from "../lib/auth";
+import { login } from "@/lib/auth";
 import { toast } from "@/hooks/use-toast";
+import { useAppDispatch } from "@/store";
+import { setAuth } from "@/store/authSlice";
 
 const Login = () => {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -14,9 +17,24 @@ const Login = () => {
     if (!username || !password) return;
     try {
       setLoading(true);
-      await login(username.trim(), password);
+      const data = await login(username.trim(), password);
+      if (data?.user && data?.access) {
+        dispatch(
+          setAuth({
+            user: data.user,
+            access: data.access,
+            refresh: (data.refresh as string) || "",
+          })
+        );
+      }
       toast({ title: "Logged in", description: "Welcome back!" });
-      navigate("/ce", { replace: true });
+      const group = data?.user?.usergroup;
+      const dest =
+        group === "agent" ? "/agent" :
+        group === "admin" ? "/admin" :
+        group === "manager" ? "/manager" :
+        "/";
+      navigate(dest, { replace: true });
     } catch (err) {
       toast({
         title: "Login failed",

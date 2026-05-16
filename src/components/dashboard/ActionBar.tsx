@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { PhoneOff, AlertTriangle, PhoneCall, Ban, Search } from "lucide-react";
 import {
   Dialog,
@@ -16,6 +16,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Button } from "../ui/button";
+import { Loader2, CheckCircle } from "lucide-react";
+import { agentDisposition } from "@/lib/auth"
+import { getPatientNextDashboard } from "@/lib/auth"
 
 type FormKey =
   | "ring"
@@ -49,7 +53,7 @@ const titles: Record<Exclude<FormKey, null>, string> = {
   noexist: "No. Does Not Exist",
   callback: "Call Back",
   notreq: "Treatment Not Required",
-  cfresh: "Update Prospect",
+  cfresh: "Dispose Current Lead",
   altno: "Add Alternate No.",
   whatsapp: "Add WhatsApp No.",
   todaycb: "Today CallBack.",
@@ -75,7 +79,75 @@ const SubmitBtn = ({
   );
 };
 
-const FormBody = ({ formKey }: { formKey: Exclude<FormKey, null> }) => {
+const DISPOSITION_REASONS = [
+  { label: "Ringing", value: "ringing" },
+  { label: "Busy", value: "busy" },
+  { label: "Switch Off", value: "switch_off" },
+  { label: "Call Cut", value: "call_cut" },
+  { label: "Temporarily Out of Service", value: "temporarily_out_of_service" },
+  { label: "Incoming Not Available", value: "incoming_not_available" },
+  { label: "Out of Coverage Area", value: "out_of_coverage_area" },
+  { label: "Agree for Appointment", value: "agree_for_appt" },
+  { label: "Invalid Number", value: "invalid_number" },
+  { label: "Call Back Required", value: "call_back_later" },
+  { label: "Today Call Back", value: "today_call_back" },
+  { label: "Fertility Case", value: "fertility_case" },
+  { label: "Treatment Ongoing at Another Center", value: "treatment_ongoing_elsewhere" },
+  { label: "Already Pregnant", value: "already_pregnant" },
+  { label: "Already Having Baby", value: "already_having_baby" },
+  { label: "Low Age", value: "low_age" },
+  { label: "Unmarried – Treatment Not Required", value: "unmarried" },
+  { label: "Location / Distance Issue", value: "location_issue" },
+  { label: "Non-Fertility Case", value: "non_fertility_case" },
+  { label: "Invalid Case", value: "invalid_case" },
+  { label: "Not Interested", value: "not_interested" },
+  { label: "Other", value: "other" },
+];
+
+const FormBody = ({ formKey }: { formKey: Exclude<FormKey, null> }, setOpenForm: any) => {
+  const [dispositionReason, setDispositionReason] = useState("");
+  const [notes, setNotes] = useState("");
+  const [callBackDateTime, setCallBackDateTime] = useState("")
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [ptData, setPtData] = useState<any>(null);
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const response = await getPatientNextDashboard();
+        setPtData(response);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    load();
+  }, []);
+
+  const patientUid = ptData?.uid;
+
+  const handleDispose = async () => {
+    setIsSubmitting(true);
+    try {
+      await agentDisposition(
+        patientUid,
+        dispositionReason,
+        notes,
+        callBackDateTime
+      ).finally(() => {
+        setIsSubmitting(false);
+      });
+
+      setDispositionReason("");
+      setNotes("");
+      setCallBackDateTime(null);
+      setOpenForm(null)
+      await getPatientNextDashboard()
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   switch (formKey) {
     case "ring":
       return (
@@ -145,15 +217,59 @@ const FormBody = ({ formKey }: { formKey: Exclude<FormKey, null> }) => {
       );
     case "cfresh":
       return (
-        <div className="space-y-4 pt-2">
-          <Select>
-            <SelectTrigger><SelectValue placeholder="Call Type" /></SelectTrigger>
+        <div className="space-y-4 pt-2 h-60">
+          <Select
+            value={dispositionReason}
+            onValueChange={setDispositionReason}>
+            <SelectTrigger><SelectValue placeholder="Select Disposition Reason" /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="fresh">Fresh</SelectItem>
-              <SelectItem value="follow">Follow Up</SelectItem>
+              {DISPOSITION_REASONS.map(reason => (
+                <SelectItem key={reason.value} value={reason.value} className="px-4 py-1 text-sm hover:bg-slate-100/50 rounded-xl cursor-pointer transition-all">
+                  {reason.label}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
-          <SubmitBtn />
+          {dispositionReason === "call_back_later" && (
+            <input
+              type="datetime-local"
+              value={callBackDateTime}
+              onChange={(e) =>
+                setCallBackDateTime(e.target.value)
+              }
+            />
+          )}
+          <div>
+            <label className="text-base font-semibold text-slate-800 mb-3 block">Notes (Optional)</label>
+            <textarea
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="Quick notes about this call..."
+              className="w-full p-4 border-2 border-slate-200 rounded-2xl bg-white/60 backdrop-blur-xl focus:ring-4 focus:ring-blue-500/30 focus:border-blue-500 min-h-[100px] resize-vertical text-base leading-relaxed shadow-xl hover:shadow-2xl transition-all duration-300 placeholder:text-slate-400 focus:outline-none max-h-20"
+              rows={2}
+            />
+          </div>
+          <Button
+            variant="destructive"
+            className="w-full h-10 text-md font-black shadow-2xl hover:shadow-3xl transform hover:-translate-y-0.5 transition-all duration-300 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white border-0 rounded-3xl px-4"
+            disabled={
+              !dispositionReason ||
+              isSubmitting ||
+              !patientUid
+            }
+            onClick={handleDispose}
+          >
+            <CheckCircle className="mr-3 h-6 w-6" />
+            {isSubmitting ? (
+              <>
+                <Loader2 className="mr-3 h-6 w-6 animate-spin" />
+                Processing...
+              </>
+            ) : (
+              'Dispose Lead'
+            )}
+          </Button>
+          {/* <SubmitBtn /> */}
         </div>
       );
     case "altno":
@@ -251,7 +367,7 @@ const ActionBar = () => {
                   {titles[openForm]}
                 </DialogTitle>
               </DialogHeader>
-              <FormBody formKey={openForm} />
+              <FormBody formKey={openForm} setOpenForm={setOpenForm} />
             </>
           )}
         </DialogContent>

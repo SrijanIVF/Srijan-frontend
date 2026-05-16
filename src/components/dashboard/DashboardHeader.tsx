@@ -17,7 +17,7 @@ const DashboardHeader = () => {
           >
             <Menu className="h-6 w-6 opacity-90 hover:opacity-100" />
           </button>
-          <a href="/ce" className="flex items-center gap-2">
+          <a href="/agent" className="flex items-center gap-2">
             <Home className="h-5 w-5" />
             <h1 className="text-2xl font-bold tracking-wide">
               SRIJAN CRM
