@@ -88,30 +88,51 @@ const FillInfo = () => {
     });
     const [lead_uuid, setLeadUUID] = useState("");
 
+    const initialFormData = {
+        treatment: "IVF",
+        language: "Hindi",
+
+        patient_gender: "Male",
+
+        patient_name: "",
+        patient_age: "",
+
+        spouse_name: "",
+        spouse_age: "",
+
+        marriage_duration: "",
+
+        patient_country: "India",
+
+        update_country: "",
+
+        patient_area: "",
+
+        address: "",
+
+        annual_income: "",
+
+        emi_eligibility: false,
+
+        occupation: "",
+
+        email: "",
+
+        patient_city: "",
+
+        treatment_city: "",
+
+        source: "",
+
+        comment_type: "",
+
+        comment: "",
+
+        lead: ""
+    };
+
     const [formData, setFormData] =
-        useState({
-            treatment: "IVF",
-            language: "Hindi",
-            patient_gender: "Male",
-            patient_name: "",
-            patient_age: "",
-            spouse_name: "",
-            spouse_age: "",
-            marriage_duration: "",
-            patient_country: "India",
-            update_country: "",
-            patient_area: "",
-            address: "",
-            annual_income: "",
-            emi_eligibility: false,
-            occupation: "",
-            email: "",
-            patient_city: "",
-            treatment_city: "",
-            source: "",
-            comment_type: "",
-            comment: "",
-        });
+        useState(initialFormData);
 
     useEffect(() => {
         fetchDropdowns();
@@ -275,6 +296,7 @@ const FillInfo = () => {
             }
 
             alert("Updated Successfully");
+            setFormData(initialFormData)
 
         } catch (err) {
             console.log(err);
@@ -508,11 +530,7 @@ const FillInfo = () => {
                             <Field label="Annual Income">
 
                                 <Select
-
-                                    value={
-                                        formData.annual_income
-                                    }
-
+                                    value={formData.annual_income}
                                     onValueChange={(v) =>
                                         setFormData({
                                             ...formData,
@@ -522,21 +540,25 @@ const FillInfo = () => {
                                 >
 
                                     <SelectTrigger>
-                                        <SelectValue />
+                                        <SelectValue placeholder="Select Income" />
                                     </SelectTrigger>
 
                                     <SelectContent>
 
-                                        <SelectItem value="0-3">
-                                            0-3 Lakhs
+                                        <SelectItem value="<1.5Lac">
+                                            &lt;1.5 Lac
                                         </SelectItem>
 
-                                        <SelectItem value="3-6">
-                                            3-6 Lakhs
+                                        <SelectItem value="1.5-3Lac">
+                                            1.5 - 3 Lac
                                         </SelectItem>
 
-                                        <SelectItem value="6-10">
-                                            6-10 Lakhs
+                                        <SelectItem value="3-5Lac">
+                                            3 - 5 Lac
+                                        </SelectItem>
+
+                                        <SelectItem value=">5Lac">
+                                            &gt;5 Lac
                                         </SelectItem>
 
                                     </SelectContent>
