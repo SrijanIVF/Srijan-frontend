@@ -31,6 +31,7 @@ import { Button } from "../ui/button";
 
 import { agentDisposition } from "@/lib/auth";
 import { PatientData } from "./PatientDetails";
+import { SmartLeadSearch } from "./Search/Search";
 
 type FormKey =
   | "ring"
@@ -311,7 +312,7 @@ const ActionBar = ({
         ))}
 
         {/* SEARCH */}
-        <div className="flex-1 min-w-[220px] flex items-center rounded-md overflow-hidden border">
+        {/* <div className="flex-1 min-w-[220px] flex items-center rounded-md overflow-hidden border">
           <input
             type="text"
             placeholder="Search Here..."
@@ -321,7 +322,9 @@ const ActionBar = ({
           <button className="bg-[image:var(--gradient-pink)] text-white px-4 py-2.5">
             <Search className="h-4 w-4" />
           </button>
-        </div>
+        </div> */}
+
+        <SmartLeadSearch />
       </div>
 
       {/* POPUP */}

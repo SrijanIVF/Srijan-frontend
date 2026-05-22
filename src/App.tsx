@@ -26,6 +26,10 @@ const App = () => (
           <Route path="/agent/all-leads" element={<AllLeads />} />
           <Route path="*" element={<NotFound />} />
           <Route path="/manager" element={<CEAgentDashboard />} />
+          <Route
+            path="/agent/fill-info/:id"
+            element={<FillInfo />}
+          />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
@@ -33,26 +37,3 @@ const App = () => (
 );
 
 export default App;
-
-
-// import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-// import Login from '@/pages/Auth/Login';
-// import { ProtectedRoute } from '@/routes/ProtectedRoute';
-
-// const App = () => {
-//   return (
-//     <BrowserRouter>
-//       <Routes>
-//         <Route path="/login" element={<Login />} />
-//         <Route path="/dashboard" element={
-//           <ProtectedRoute>
-//             <div>Dashboard — coming soon</div>
-//           </ProtectedRoute>
-//         } />
-//         <Route path="*" element={<Navigate to="/login" replace />} />
-//       </Routes>
-//     </BrowserRouter>
-//   );
-// };
-
-// export default App;
