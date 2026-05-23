@@ -14,6 +14,14 @@ export interface LoginResponse {
   [k: string]: unknown;
 }
 
+export interface DispositionType {
+  patient_uid: string;
+  disposition: string;
+  comment: string;
+  call_back_time?: string;
+  city?: string;
+}
+
 export async function login(username: string, password: string): Promise<LoginResponse> {
   const res = await fetch(`${API_BASE}/auth/login/`, {
     method: "POST",
@@ -77,11 +85,12 @@ export async function agentDisposition(
   patient_uid: string,
   disposition: string,
   comment: string,
-  call_back_time?: string
+  call_back_time?: string,
+  city?: string,
 ) {
   const token = getToken();
 
-  const payload: any = {
+  const payload: DispositionType = {
     patient_uid,
     disposition,
     comment,
@@ -89,10 +98,16 @@ export async function agentDisposition(
 
   // only for callback case
   if (
-    disposition === "call_back_later" &&
-    call_back_time
+    disposition === "call_back_later" && call_back_time
   ) {
     payload.call_back_time = call_back_time;
+  }
+
+  // only for location case
+  if (
+    disposition === "location_issue" && city
+  ) {
+    payload.city = city;
   }
 
   const res = await fetch(

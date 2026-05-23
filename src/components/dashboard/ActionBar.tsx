@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   PhoneOff,
   AlertTriangle,
@@ -32,6 +32,8 @@ import { Button } from "../ui/button";
 import { agentDisposition } from "@/lib/auth";
 import { PatientData } from "./PatientDetails";
 import { SmartLeadSearch } from "./Search/Search";
+import { CityItem } from "@/pages/FillInfo";
+import { API_BASE, getToken } from "@/lib/auth";
 
 type FormKey =
   | "ring"
@@ -172,6 +174,15 @@ const FormBody = ({
   const [notes, setNotes] = useState("");
   const [callBackDateTime, setCallBackDateTime] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [city, setCity] = useState("");
+
+  const [cities, setCities] = useState<{
+    patient_city: CityItem[];
+    treatment_city: CityItem[];
+  }>({
+    patient_city: [],
+    treatment_city: [],
+  });
 
   const handleDispose = async () => {
     try {
@@ -181,7 +192,8 @@ const FormBody = ({
         patientUid,
         dispositionReason,
         notes,
-        callBackDateTime
+        callBackDateTime,
+        city,
       );
 
       setDispositionReason("");
@@ -198,6 +210,29 @@ const FormBody = ({
       setIsSubmitting(false);
     }
   };
+
+  const fetchCityDropdown = async () => {
+    try {
+      const token = getToken();
+      const res =
+        await fetch(`${API_BASE}/core/city/`, {
+          headers: {
+            Accept: "application/json",
+            ...(token ? { Authorization: `Bearer ${token}`, } : {}),
+          },
+        });
+      const data = await res.json();
+      setCities(data);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const location_reason = dispositionReason === "location_issue"
+
+  useEffect(() => {
+    fetchCityDropdown()
+  }, [location_reason])
 
   switch (formKey) {
     case "fresh":
@@ -234,6 +269,31 @@ const FormBody = ({
                   setCallBackDateTime(e.target.value)
                 }
               />
+            </div>
+          )}
+
+          {dispositionReason === "location_issue" && (
+            <div className="space-y-2">
+              <Label>City</Label>
+              <Select
+                value={city}
+                onValueChange={(v) => setCity(v)}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {cities.patient_city.map(
+                    (city) => (
+                      <SelectItem
+                        key={city.id}
+                        value={String(city.id)}
+                      >
+                        {city.name}
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
             </div>
           )}
 

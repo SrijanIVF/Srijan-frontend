@@ -30,7 +30,7 @@ type SectionProps = {
     defaultOpen?: boolean;
 };
 
-type CityItem = {
+export type CityItem = {
     id: number;
     name: string;
 };
@@ -135,7 +135,7 @@ const FillInfo = () => {
         useState(initialFormData);
 
     useEffect(() => {
-        fetchDropdowns();
+        fetchCityDropdown();
     }, []);
 
     useEffect(() => {
@@ -210,7 +210,7 @@ const FillInfo = () => {
         }
     };
 
-    const fetchDropdowns = async () => {
+    const fetchCityDropdown = async () => {
         try {
             const token = getToken();
             const res =
@@ -422,33 +422,19 @@ const FillInfo = () => {
                                             (city) => (
                                                 <SelectItem
                                                     key={city.id}
-
-                                                    value={String(
-                                                        city.id
-                                                    )}
+                                                    value={String(city.id)}
                                                 >
-
                                                     {city.name}
-
                                                 </SelectItem>
-                                            ))
-                                        }
-
+                                            ))}
                                     </SelectContent>
-
                                 </Select>
-
                             </Field>
 
 
                             <Field label="Treatment City">
-
                                 <Select
-
-                                    value={
-                                        formData.treatment_city
-                                    }
-
+                                    value={formData.treatment_city}
                                     onValueChange={(v) =>
                                         setFormData({
                                             ...formData,
@@ -456,35 +442,22 @@ const FillInfo = () => {
                                         })
                                     }
                                 >
-
                                     <SelectTrigger>
-
                                         <SelectValue />
-
                                     </SelectTrigger>
-
                                     <SelectContent>
-
                                         {cities.treatment_city.map(
                                             (city) => (
                                                 <SelectItem
                                                     key={city.id}
-
-                                                    value={String(
-                                                        city.id
-                                                    )}
+                                                    value={String(city.id)}
                                                 >
-
                                                     {city.name}
-
                                                 </SelectItem>
                                             ))
                                         }
-
                                     </SelectContent>
-
                                 </Select>
-
                             </Field>
 
                             <Field label="Lead Source">
