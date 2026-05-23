@@ -1,13 +1,16 @@
 import SectionCard from "./SectionCard";
 import { FileEdit, StickyNote, MessageCircle, Send } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+
+import { authApi } from "@/lib/api";
+import styles from "./Comments.module.css";
 
 export interface PatientData {
   uid?: string;
@@ -41,6 +44,12 @@ const PatientDetails = ({
   loading: boolean;
 }) => {
   const [notesOpen, setNotesOpen] = useState(false);
+  const [commentsLoading, setCommentsLoading] = useState(false);
+
+  const [systemComments, setSystemComments] = useState([]);
+  const [ceComments, setCeComments] = useState([]);
+  const [waComments, setWaComments] = useState([]);
+  const [pccComments, setPccComments] = useState([]);
 
   const rowsLeft: [string, string][] = [
     ["Lead ID", fmt(patientData?.uid)],
@@ -74,6 +83,42 @@ const PatientDetails = ({
       text: "Welcome to Crysta IVF!",
     },
   ];
+
+  useEffect(() => {
+    if (!notesOpen || !patientData?.uid) return;
+
+    fetchComments();
+  }, [notesOpen, patientData]);
+
+  const fetchComments = async () => {
+    try {
+
+      setCommentsLoading(true);
+
+      const res = await authApi.get(
+        `/communication/patient-comments/?patient_id=${patientData?.uid}`
+      );
+
+      const data = res.data || {};
+
+      setSystemComments(
+        data.system_comments || []
+      );
+
+      setCeComments(
+        data.manual_comments || []
+      );
+
+    } catch (err) {
+
+      console.log(err);
+
+    } finally {
+
+      setCommentsLoading(false);
+
+    }
+  };
 
   return (
     <SectionCard title="Patient Details">
@@ -117,69 +162,194 @@ const PatientDetails = ({
       </div>
 
       <Dialog open={notesOpen} onOpenChange={setNotesOpen}>
-        <DialogContent className="max-w-6xl p-0 gap-0 overflow-hidden bg-[hsl(230_60%_97%)]">
-          <DialogHeader className="bg-[image:var(--gradient-brand)] px-6 py-4">
-            <DialogTitle className="text-white text-lg font-bold">
+        <DialogContent className="max-w-7xl p-0 overflow-hidden bg-[#eef0ff]">
+
+          <DialogHeader className="bg-indigo-700 px-6 py-4">
+            <DialogTitle className="text-white text-xl font-bold">
               Lead Id : {patientData?.uid}
             </DialogTitle>
           </DialogHeader>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 p-4 max-h-[80vh] overflow-y-auto">
-            <div className="bg-white rounded-xl shadow-[var(--shadow-card)] flex flex-col">
-              <div className="px-5 py-3 border-b-2 border-[hsl(272_60%_55%)]">
-                <h3 className="font-bold text-sm tracking-wide">
+          <div className="grid lg:grid-cols-2 gap-4 p-4">
+
+            {/* SYSTEM */}
+
+            <div className="bg-white rounded-xl overflow-hidden">
+
+              <div className="border-b-4 border-purple-600 px-5 py-3">
+                <h3 className="font-bold text-xl">
                   SYSTEM GENERATED
                 </h3>
               </div>
 
-              <div className="p-3 space-y-2 max-h-72 overflow-y-auto">
-                {systemLogs.map((l, i) => (
+              <div className="h-[300px] overflow-y-auto p-3 space-y-2">
+
+                {systemComments.map((c, index) => (
+
                   <div
-                    key={i}
-                    className="bg-[hsl(230_60%_98%)] rounded px-3 py-1.5 text-xs"
+                    key={c.id || index}
+                    className={styles.commentItem}
                   >
-                    <span className="text-[hsl(142_70%_35%)] font-semibold">
-                      {l.date}
+
+                    <span className={styles.commentDate}>
+                      {c.created_at?.substring(0, 10)}
                     </span>
+
+                    <span className={styles.separator}>:</span>
+
+                    <span className={styles.commentTime}>
+                      {c.created_at?.substring(11, 19)}
+                    </span>
+
+                    <span className={styles.separator}>:</span>
+
+                    <span className={styles.commentUser}>
+                      {c.user_name}
+                    </span>
+
+                    <span className={styles.separator}>:</span>
+
+                    <span className={styles.commentText}>
+                      {c.comment}
+                    </span>
+
                   </div>
+
                 ))}
+
               </div>
+
             </div>
 
-            <div className="bg-white rounded-xl shadow-[var(--shadow-card)] flex flex-col">
-              <div className="px-5 py-3 border-b-2 border-[hsl(142_70%_45%)]">
-                <h3 className="font-bold text-sm tracking-wide">
+            {/* COMMENT HISTORY */}
+
+            <div className="bg-white rounded-xl overflow-hidden">
+
+              <div className="border-b-4 border-orange-500 px-5 py-3">
+                <h3 className="font-bold text-xl">
+                  COMMENT HISTORY
+                </h3>
+              </div>
+
+              <div className="h-[300px] overflow-y-auto p-3">
+
+                {ceComments.map((c, index) => (
+
+                  <div
+                    key={c.id || index}
+                    className={styles.commentItem}
+                  >
+
+                    <span className={styles.commentDate}>
+                      {c.created_at?.substring(0, 10)}
+                    </span>
+
+                    <span className={styles.separator}>
+                      :
+                    </span>
+
+                    <span className={styles.commentTime}>
+                      {c.created_at?.substring(11, 19)}
+                    </span>
+
+                    <span className={styles.separator}>
+                      :
+                    </span>
+
+                    <span className={styles.commentUser}>
+                      {c.user_name}
+                    </span>
+
+                    <span className={styles.separator}>
+                      :
+                    </span>
+
+                    <span className={styles.commentText}>
+                      {c.comment}
+                    </span>
+
+                  </div>
+
+                ))}
+
+              </div>
+
+            </div>
+
+            {/* WHATSAPP */}
+
+            <div className="bg-white rounded-xl overflow-hidden">
+
+              <div className="border-b-4 border-green-500 px-5 py-3">
+                <h3 className="font-bold text-xl">
                   WHATSAPP HISTORY
                 </h3>
               </div>
 
-              <div className="p-3 space-y-2 max-h-60 overflow-y-auto">
-                {whatsappMsgs.map((m, i) => (
+              <div className="h-[250px] overflow-y-auto p-3 space-y-2">
+
+                {waComments.map((c) => (
+
                   <div
-                    key={i}
-                    className="bg-[hsl(120_50%_95%)] rounded-lg px-3 py-2 text-xs leading-relaxed"
+                    key={c.id}
+                    className="bg-green-50 rounded-lg p-3"
                   >
-                    {m.text}
+                    {c.message}
                   </div>
+
                 ))}
+
               </div>
 
               <div className="p-3 border-t flex gap-2">
+
                 <input
+                  className="flex-1 border rounded p-2"
                   placeholder="Add comment..."
-                  className="flex-1 px-3 py-2 rounded-md border border-border text-sm outline-none"
                 />
 
-                <button className="px-4 py-2 rounded-md bg-muted text-muted-foreground text-sm font-semibold flex items-center gap-1">
-                  <Send className="h-3.5 w-3.5" />
+                <button className="bg-gray-200 px-5 rounded">
                   Send
                 </button>
+
               </div>
+
             </div>
+
+            {/* PCC */}
+
+            <div className="bg-white rounded-xl overflow-hidden">
+
+              <div className="border-b-4 border-red-500 px-5 py-3">
+
+                <h3 className="font-bold text-xl">
+                  PCC HISTORY / SYSTEM
+                </h3>
+
+              </div>
+
+              <div className="h-[300px] overflow-y-auto p-3">
+
+                {pccComments.map((c) => (
+
+                  <div
+                    key={c.id}
+                    className="bg-slate-100 rounded p-2 mb-2"
+                  >
+                    {c.comment}
+                  </div>
+
+                ))}
+
+              </div>
+
+            </div>
+
           </div>
+
         </DialogContent>
       </Dialog>
-    </SectionCard>
+    </SectionCard >
   );
 };
 
