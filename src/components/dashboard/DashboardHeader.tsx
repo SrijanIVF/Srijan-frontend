@@ -2,9 +2,26 @@ import { Menu, Home, Search, MessageCircle, FileText, User } from "lucide-react"
 import { Button } from "@/components/ui/button";
 import LeftSidebar from "./LeftSidebar";
 import { useState } from "react";
+import { LogOut, ChevronDown } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const DashboardHeader = () => {
+  const navigate = useNavigate();
+
+  const [openMenu, setOpenMenu] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const [openProfile, setOpenProfile] = useState(false);
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("auth");
+    localStorage.removeItem("user");
+    localStorage.removeItem("refresh_token");
+    navigate("/login");
+  };
+
+
   return (
     <header className="w-full bg-[image:var(--gradient-header)] text-white shadow-md">
       <LeftSidebar open={sidebarOpen} onOpenChange={setSidebarOpen} />
@@ -37,8 +54,28 @@ const DashboardHeader = () => {
           <div className="h-9 w-9 rounded-full bg-[hsl(142_70%_45%)] flex items-center justify-center shadow-md cursor-pointer">
             <MessageCircle className="h-5 w-5 fill-white text-white" />
           </div>
-          <div className="h-9 w-9 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center cursor-pointer">
-            <User className="h-5 w-5" />
+          <div className="relative">
+            <button
+              onClick={() => setOpenProfile(!openProfile)}
+              className="h-10 w-10 rounded-full bg-gradient-to-br from-pink-500 via-purple-500 to-indigo-500 shadow-lg hover:scale-105 transition flex items-center justify-center"
+            >
+              <User className="h-5 w-5 text-white" />
+            </button>
+
+            {openProfile && (
+              <div className="absolute right-0 top-12 w-40 bg-white rounded-xl shadow-xl border overflow-hidden z-50">
+
+                <button
+                  onClick={handleLogout}
+                  className="w-full px-4 py-3 flex items-center gap-2 text-red-600 hover:bg-red-50 transition text-sm font-medium"
+                >
+                  <LogOut className="h-4 w-4" />
+                  Logout
+                </button>
+
+              </div>
+            )}
+
           </div>
         </div>
       </div>
