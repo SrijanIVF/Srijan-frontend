@@ -1,24 +1,15 @@
 import { useEffect, useState } from "react";
 import {
-    ChevronUp,
-    ChevronDown,
-    ArrowLeft,
-    Loader2,
+    ChevronUp, ChevronDown, ArrowLeft, Loader2,
 } from "lucide-react";
-
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import DashboardFooter from "@/components/dashboard/DashboardFooter";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
+    Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-
 import { Button } from "@/components/ui/button";
 import { API_BASE, getToken } from "@/lib/auth";
 import { useParams } from "react-router-dom";
@@ -40,11 +31,7 @@ type LeadSource = {
     name: string;
 };
 
-const Section = ({
-    title,
-    children,
-    defaultOpen = true,
-}: SectionProps) => {
+const Section = ({ title, children, defaultOpen = true, }: SectionProps) => {
     const [open, setOpen] = useState(defaultOpen);
 
     return (
@@ -91,48 +78,29 @@ const FillInfo = () => {
     const initialFormData = {
         treatment: "IVF",
         language: "Hindi",
-
         patient_gender: "Male",
-
         patient_name: "",
         patient_age: "",
-
         spouse_name: "",
         spouse_age: "",
-
         marriage_duration: "",
-
         patient_country: "India",
-
         update_country: "",
-
         patient_area: "",
-
         address: "",
-
         annual_income: "",
-
         emi_eligibility: false,
-
         occupation: "",
-
         email: "",
-
         patient_city: "",
-
         treatment_city: "",
-
         source: "",
-
         comment_type: "",
-
         comment: "",
-
         lead: ""
     };
 
-    const [formData, setFormData] =
-        useState(initialFormData);
+    const [formData, setFormData] = useState(initialFormData);
 
     useEffect(() => {
         fetchCityDropdown();
@@ -145,66 +113,24 @@ const FillInfo = () => {
 
     const fetchPatient = async () => {
         try {
-
-            const res =
-                await authApi.get(
-                    `/lead/patients/${id}/`
-                );
-
+            const res = await authApi.get(`/lead/patients/${id}/`);
             const p = res.data;
             setLeadUUID(p?.lead)
             setFormData({
-
                 ...formData,
-
-                patient_name:
-                    p.patient_name || "",
-
-                patient_age:
-                    String(
-                        p.patient_age || ""
-                    ),
-
-                spouse_name:
-                    p.spouse_name || "",
-
-                spouse_age:
-                    String(
-                        p.spouse_age || ""
-                    ),
-
-                patient_gender:
-                    p.patient_gender || "Male",
-
-                marriage_duration:
-                    p.marriage_duration || "",
-
-                address:
-                    p.address || "",
-
-                email:
-                    p.email || "",
-
-                annual_income:
-                    p.annual_income || "",
-
-                emi_eligibility:
-                    p.emi_eligibility,
-
-                patient_city:
-                    String(
-                        p.patient_city || ""
-                    ),
-
-                treatment_city:
-                    String(
-                        p.treatment_city || ""
-                    ),
-
-                source:
-                    p.source || "",
+                patient_name: p.patient_name || "",
+                patient_age: String(p.patient_age || ""),
+                spouse_name: p.spouse_name || "",
+                spouse_age: String(p.spouse_age || ""),
+                patient_gender: p.patient_gender || "Male",
+                marriage_duration: p.marriage_duration || "",
+                address: p.address || "",
+                email: p.email || "",
+                annual_income: p.annual_income || "",
+                emi_eligibility: p.emi_eligibility,
+                patient_city: String(p.patient_city || ""), treatment_city: String(p.treatment_city || ""),
+                source: p.source || "",
             });
-
         } catch (err) {
             console.log(err);
         }
@@ -227,43 +153,24 @@ const FillInfo = () => {
         }
     };
 
-    const handleSubmit = async (
-        e: React.FormEvent
-    ) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
             setLoading(true);
             const token = getToken();
             const payload = {
                 patient_name: formData.patient_name || "",
-                patient_age:
-                    formData.patient_age
-                        ? Number(formData.patient_age)
-                        : 0,
-                patient_gender:
-                    formData.patient_gender || "Male",
-                spouse_name:
-                    formData.spouse_name || "",
-                spouse_age:
-                    formData.spouse_age
-                        ? Number(formData.spouse_age)
-                        : 0,
-                marriage_duration:
-                    formData.marriage_duration || "",
-                address:
-                    formData.address || "",
-                email:
-                    formData.email || "",
-                annual_income:
-                    formData.annual_income || "0-3",
-                emi_eligibility:
-                    formData.emi_eligibility,
-                patient_city:
-                    Number(formData.patient_city),
-                treatment_city:
-                    formData.treatment_city
-                        ? Number(formData.treatment_city)
-                        : Number(formData.patient_city),
+                patient_age: formData.patient_age ? Number(formData.patient_age) : 0,
+                patient_gender: formData.patient_gender || "Male",
+                spouse_name: formData.spouse_name || "",
+                spouse_age: formData.spouse_age ? Number(formData.spouse_age) : 0,
+                marriage_duration: formData.marriage_duration || "",
+                address: formData.address || "",
+                email: formData.email || "",
+                annual_income: formData.annual_income || "0-3",
+                emi_eligibility: formData.emi_eligibility,
+                patient_city: Number(formData.patient_city),
+                treatment_city: formData.treatment_city ? Number(formData.treatment_city) : Number(formData.patient_city),
                 source: formData.source || "",
                 lead: lead_uuid
             };
@@ -275,18 +182,13 @@ const FillInfo = () => {
                     headers: {
                         Accept: "application/json",
                         "Content-Type": "application/json",
-                        ...(token
-                            ? { Authorization: `Bearer ${token}`, } : {}),
+                        ...(token ? { Authorization: `Bearer ${token}`, } : {}),
                     },
-                    body:
-                        JSON.stringify(payload),
+                    body: JSON.stringify(payload),
                 }
             );
 
             const data = await res.json();
-
-            console.log("RESPONSE =>", data);
-
             if (!res.ok) {
                 throw new Error(
                     data?.detail ||
@@ -294,10 +196,8 @@ const FillInfo = () => {
                     "Update failed"
                 );
             }
-
             alert("Updated Successfully");
             setFormData(initialFormData)
-
         } catch (err) {
             console.log(err);
             alert(err.message);
@@ -430,8 +330,6 @@ const FillInfo = () => {
                                     </SelectContent>
                                 </Select>
                             </Field>
-
-
                             <Field label="Treatment City">
                                 <Select
                                     value={formData.treatment_city}
@@ -459,8 +357,7 @@ const FillInfo = () => {
                                     </SelectContent>
                                 </Select>
                             </Field>
-
-                            <Field label="Lead Source">
+                            {/* <Field label="Lead Source">
 
                                 <Select
                                     value={formData.source}
@@ -497,9 +394,7 @@ const FillInfo = () => {
 
                                 </Select>
 
-                            </Field>
-
-
+                            </Field> */}
                             <Field label="Annual Income">
 
                                 <Select
@@ -539,78 +434,40 @@ const FillInfo = () => {
                                 </Select>
 
                             </Field>
-
-
                             <Field label="Loan Required">
-
                                 <Select
-
-                                    value={
-                                        String(
-                                            formData.emi_eligibility
-                                        )
-                                    }
-
+                                    value={String(formData.emi_eligibility)}
                                     onValueChange={(v) =>
                                         setFormData({
                                             ...formData,
-
-                                            emi_eligibility:
-                                                v === "true"
+                                            emi_eligibility: v === "true"
                                         })
                                     }
                                 >
-
                                     <SelectTrigger>
-
                                         <SelectValue />
-
                                     </SelectTrigger>
-
                                     <SelectContent>
-
-                                        <SelectItem value="true">
-                                            Yes
+                                        <SelectItem value="true">Yes </SelectItem>
+                                        <SelectItem value="false">No
                                         </SelectItem>
-
-                                        <SelectItem value="false">
-                                            No
-                                        </SelectItem>
-
                                     </SelectContent>
-
                                 </Select>
-
                             </Field>
-
-
                             <Field label="Occupation">
-
                                 <Input
-                                    value={
-                                        formData.occupation
-                                    }
-
+                                    value={formData.occupation}
                                     onChange={(e) =>
                                         setFormData({
                                             ...formData,
-                                            occupation:
-                                                e.target.value
+                                            occupation: e.target.value
                                         })
                                     }
                                 />
-
                             </Field>
-
-
                             <Field label="Email">
-
                                 <Input
-
-                                    value={
-                                        formData.email
-                                    }
-
+                                    value={formData.email}
                                     onChange={(e) =>
                                         setFormData({
                                             ...formData,
@@ -618,43 +475,24 @@ const FillInfo = () => {
                                         })
                                     }
                                 />
-
                             </Field>
-
                             <Field label="Address">
-
                                 <Input
-
-                                    value={
-                                        formData.address
-                                    }
-
+                                    value={formData.address}
                                     onChange={(e) =>
                                         setFormData({
                                             ...formData,
-                                            address:
-                                                e.target.value
+                                            address: e.target.value
                                         })
                                     }
                                 />
-
                             </Field>
-
                         </div>
-
                     </Section>
-
-
                     <Section title="Other Details">
-
                         <Field label="Comment Type">
-
                             <Select
-
-                                value={
-                                    formData.comment_type
-                                }
-
+                                value={formData.comment_type}
                                 onValueChange={(v) =>
                                     setFormData({
                                         ...formData,
@@ -662,42 +500,19 @@ const FillInfo = () => {
                                     })
                                 }
                             >
-
                                 <SelectTrigger>
-
                                     <SelectValue />
-
                                 </SelectTrigger>
-
                                 <SelectContent>
-
-                                    <SelectItem value="call">
-                                        Call Later
-                                    </SelectItem>
-
-                                    <SelectItem value="appointment">
-
-                                        Appointment
-
-                                    </SelectItem>
-
+                                    <SelectItem value="call">Call Later</SelectItem>
+                                    <SelectItem value="appointment"> Appointment</SelectItem>
                                 </SelectContent>
-
                             </Select>
-
                         </Field>
-
-
                         <Field label="Comment">
-
                             <Textarea
-
                                 rows={4}
-
-                                value={
-                                    formData.comment
-                                }
-
+                                value={formData.comment}
                                 onChange={(e) =>
                                     setFormData({
                                         ...formData,
@@ -705,30 +520,18 @@ const FillInfo = () => {
                                     })
                                 }
                             />
-
                         </Field>
-
                     </Section>
-
-
                     <Button
                         type="submit"
                         className="w-full"
                         disabled={loading}
                     >
-
-                        {loading
-                            ? "Updating..."
-                            : "SUBMIT"}
-
+                        {loading ? "Updating..." : "SUBMIT"}
                     </Button>
-
                 </form>
-
             </main>
-
             <DashboardFooter />
-
         </div>
     );
 };
