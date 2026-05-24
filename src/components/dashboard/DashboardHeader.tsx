@@ -7,10 +7,7 @@ import { useNavigate } from "react-router-dom";
 
 const DashboardHeader = () => {
   const navigate = useNavigate();
-
-  const [openMenu, setOpenMenu] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
   const [openProfile, setOpenProfile] = useState(false);
 
   const handleLogout = () => {

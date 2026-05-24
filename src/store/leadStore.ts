@@ -1,87 +1,11 @@
-// src/store/leadsStore.ts
+// src/store/leadStore.ts
 import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
 import { useShallow } from 'zustand/react/shallow';
 import { authApi } from '../lib/api';
+import { PatientType, LeadStatetype, PatientListResponse } from '@/pages/types/ptDetails';
 
-export interface Patient {
-    id: number;
-    uid: string;
-    patient_name: string;
-    patient_age: number | null;
-    patient_gender: string | null;
-    email: string;
-    patient_city_name: string;
-    patient_status: string;
-    user_name: string;
-    created_at: string;
-    updated_at: string;
-    main_mobile: string;
-    secondary_mobile: string | null;
-    whatsapp_mobile: string | null;
-    emergency_mobile: string | null;
-    spouse_name: string | null;
-    spouse_age: number | null;
-    marital_status: string | null;
-    marriage_duration: string | null;
-    address: string | null;
-    any_baby: boolean | null;
-    baby_count: number | null;
-    trying_conceive_duration: string | null;
-    annual_income: string | null;
-    emi_eligibility: boolean;
-    call_back: string | null;
-    followup_datetime: string;
-    priority: string;
-    is_disposition: boolean;
-    lead: string;
-    user: string;
-    source: string;
-    patient_city: number;
-    treatment_city: number | null;
-}
-
-export interface PaginatedResponse<T> {
-    count: number;
-    page_size: number;
-    links: {
-        next: string | null;
-        previous: string | null;
-    };
-    results: T[];
-}
-
-export type PatientListResponse = PaginatedResponse<Patient>;
-
-interface LeadsState {
-    useDemoMode: boolean;
-    setDemoMode: (enabled: boolean) => void;
-
-    currentLead: Patient | null;
-    currentQueuePosition: number;
-    totalLeadsInQueue: number;
-    disposedLeads: Patient[];
-    leads: PatientListResponse | [];
-    isLoading: boolean;
-    error: string | null;
-    redirectTarget?: any;
-    query: any;
-
-    fetchNextLead: () => Promise<Patient | null>;
-    disposeLead: (leadId: string, reason: string, notes?: string, nextFollowupDays?: number, call_back_time?: any) => Promise<void>;
-    fetchAllLeads: () => Promise<PatientListResponse | void>;
-    createLead: (body: Patient) => Promise<PatientListResponse | null>;
-    generateLead?: (body: any) => Promise<PatientListResponse | null>;
-    searchLeads?: (query: any) => Promise<any>;
-    clickToCall: (leadId: string) => Promise<void>;
-    skipLead: () => Promise<void>;
-    callBackLead: (url: string) => Promise<any>;
-    resetDemo: () => void;
-    clear: () => void;
-}
-
-
-const detectBestRoute = (item: any) => {
+const detectBestRoute = (item) => {
     if (item.uid?.match(/^[A-Z0-9]{6,}-?\d*$/)) {
         return {
             type: 'lead',
@@ -99,14 +23,9 @@ const detectBestRoute = (item: any) => {
     }
 
     return null;
-    // return {
-    //     type: 'search',
-    //     route: `/agent/search?q=${encodeURIComponent(item.uid || item.patient_name)}`
-    // };
 };
 
-
-export const useLeadsStore = create<LeadsState>()(
+export const useLeadsStore = create<LeadStatetype>()(
     devtools(
         persist(
             (set, get) => ({
@@ -134,7 +53,7 @@ export const useLeadsStore = create<LeadsState>()(
                             set({ currentLead: lead, currentQueuePosition: lead.queue_position, totalLeadsInQueue: lead.total });
                             return lead;
                         }
-                    } catch (error: any) {
+                    } catch (error) {
                         const errorMsg = error.response?.data?.message || 'Failed to fetch lead';
                         set({ error: errorMsg, isLoading: false });
                         return null;
@@ -151,34 +70,34 @@ export const useLeadsStore = create<LeadsState>()(
                             set({ leads, isLoading: false });
                             return;
                         }
-                    } catch (error: any) {
+                    } catch (error) {
                         const errorMsg = error.response?.data?.message || 'Failed to fetch leads';
                         set({ error: errorMsg, isLoading: false });
                     }
                 },
 
-                createLead: async (body: Patient) => {
+                createLead: async (body: PatientType) => {
                     set({ isLoading: true, error: null })
                     try {
                         const response = await authApi.post('/lead/create-manual-lead/', body);
                         const leads = response.data as PatientListResponse;
                         set({ leads, isLoading: false });
                         return leads;
-                    } catch (error: any) {
+                    } catch (error) {
                         const errorMsg = error.response?.data?.message || 'Failed to create lead';
                         set({ error: errorMsg, isLoading: false });
                         throw error;
                     }
                 },
 
-                generateLead: async (body: any) => {
+                generateLead: async (body: PatientListResponse) => {
                     set({ isLoading: true, error: null })
                     try {
                         const response = await authApi.post('/lead//', body);
                         const leads = response.data as PatientListResponse;
                         set({ leads, isLoading: false });
                         return leads;
-                    } catch (error: any) {
+                    } catch (error) {
                         const errorMsg = error.response?.data?.message || 'Failed to create lead';
                         set({ error: errorMsg, isLoading: false });
                         throw error;
@@ -206,14 +125,14 @@ export const useLeadsStore = create<LeadsState>()(
                             set({ isLoading: false });
                             return;
                         }
-                    } catch (error: any) {
+                    } catch (error) {
                         const errorMsg = error.response?.data?.message || 'Failed to dispose lead';
                         set({ error: errorMsg, isLoading: false });
                         throw error;
                     }
                 },
 
-                searchLeads: async (query: string) => {
+                searchLeads: async (query) => {
                     set({ isLoading: true, query });
 
                     try {
@@ -268,7 +187,7 @@ export const useLeadsStore = create<LeadsState>()(
                         setTimeout(() => {
                             set({ isLoading: false });
                         }, 1000);
-                    } catch (error: any) {
+                    } catch (error) {
                         const errorMsg = error.response?.data?.message || 'Failed to initiate call';
                         set({ error: errorMsg, isLoading: false });
                         throw error;
@@ -289,7 +208,7 @@ export const useLeadsStore = create<LeadsState>()(
                     });
                 },
 
-                callBackLead: async (url: string) => {
+                callBackLead: async (url) => {
                     set({ isLoading: true });
                     try {
                         const response = await authApi.get(`/lead/callback/${url}`);
@@ -311,7 +230,7 @@ export const useLeadsStore = create<LeadsState>()(
             }),
             {
                 name: 'leads-demo-storage',
-                partialize: (state): Partial<LeadsState> => ({
+                partialize: (state): Partial<LeadStatetype> => ({
                     disposedLeads: state.disposedLeads,
                     useDemoMode: state.useDemoMode
                 })

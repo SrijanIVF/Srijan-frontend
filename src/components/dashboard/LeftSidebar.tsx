@@ -21,6 +21,7 @@ const items = [
   { label: "Your Report Card", icon: LogIn, style: "bg-card text-foreground" },
   // { label: "Create Kaizen", icon: PlusCircle, style: "bg-card text-foreground" },
   // { label: "CE Kaizen", icon: CheckCircle2, style: "bg-card text-foreground" },
+  { label: "Appointments", icon: CheckCircle2, style: "bg-card text-foreground" },
   { label: "Call Recording", icon: Mic, style: "bg-card text-foreground" },
   { label: "Send message to patients", icon: MessageSquare, style: "bg-[image:var(--gradient-blue)] text-white border-transparent" },
   // { label: "Conversion", icon: ArrowLeftRight, style: "bg-[image:var(--gradient-pink)] text-white border-transparent" },

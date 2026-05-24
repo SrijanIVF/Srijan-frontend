@@ -245,200 +245,61 @@ const AllLeads = () => {
                 </div>
 
                 <div className="bg-card rounded-xl overflow-hidden">
-
                     <div className="overflow-x-auto">
-
                         <table className="w-full text-sm">
-
                             <thead>
-
                                 <tr className="bg-slate-800 text-white">
-
-                                    <th className="p-3">
-                                        Lead ID
-                                    </th>
-
-                                    <th>
-                                        Patient
-                                    </th>
-
-                                    <th>
-                                        Spouse
-                                    </th>
-
-                                    <th>
-                                        Support
-                                    </th>
-
-                                    <th>
-                                        Patient City
-                                    </th>
-
-                                    <th>
-                                        Treatment City
-                                    </th>
-
-                                    <th>
-                                        Treatment
-                                    </th>
-
-                                    <th>
-                                        Followup
-                                    </th>
-
-                                    <th>
-                                        Status
-                                    </th>
-
-                                    <th>
-                                        Language
-                                    </th>
-
-                                    <th>
-                                        Source
-                                    </th>
-
-                                    <th>
-                                        Comments
-                                    </th>
-
-                                    <th>
-                                        Edit
-                                    </th>
-
-                                    <th>
-                                        Priority
-                                    </th>
-
+                                    <th className="p-3">Lead ID</th>
+                                    <th>Patient</th>
+                                    <th>Spouse</th>
+                                    <th>Support</th>
+                                    <th>Patient City</th>
+                                    <th>Treatment City</th>
+                                    <th>Treatment</th>
+                                    <th>Followup</th>
+                                    <th>Status</th>
+                                    <th>Language</th>
+                                    <th>Source</th>
+                                    <th>Comments</th>
+                                    <th>Edit</th>
+                                    <th>Priority</th>
                                 </tr>
-
                             </thead>
-
                             <tbody>
-
                                 {loading && (
-
                                     <tr>
-
                                         <td
                                             colSpan={14}
                                             className="py-10"
                                         >
-
                                             <div className="flex justify-center">
-
                                                 <Loader2 className="animate-spin" />
-
                                             </div>
-
                                         </td>
-
                                     </tr>
-
                                 )}
-
                                 {filtered.map(
                                     (l) => (
-
-                                        <tr
-                                            key={l.id}
-                                            className="border-b"
-                                        >
-
-                                            <td className="p-3 text-center">
-                                                {l.uid}
-                                            </td>
-
+                                        <tr key={l.id} className="border-b">
+                                            <td className="p-3 text-center">{l.uid}</td>
+                                            <td className="text-center">{l.patient_name}</td>
+                                            <td className="text-center">{l.spouse_name}</td>
+                                            <td className="text-center">{l.user_name}</td>
+                                            <td className="text-center">{l.patient_city_name}</td>
+                                            <td className="text-center">{l.treatment_city_name}</td>
+                                            <td className="text-center">{l.treatment}</td>
+                                            <td className="text-center">{l.followup_datetime}</td>
+                                            <td className="text-center">{l.patient_status}</td>
+                                            <td className="text-center">{l.patient_language}</td>
+                                            <td className="text-center">{l.source_name}</td>
+                                            <td className="text-center"><MessageSquare className="h-4 w-4 inline" /></td>
                                             <td className="text-center">
-                                                {
-                                                    l.patient_name
-                                                }
-                                            </td>
-
-                                            <td className="text-center">
-                                                {
-                                                    l.spouse_name
-                                                }
-                                            </td>
-
-                                            <td className="text-center">
-                                                {
-                                                    l.user_name
-                                                }
-                                            </td>
-
-                                            <td className="text-center">
-                                                {
-                                                    l.patient_city_name
-                                                }
-                                            </td>
-
-                                            <td className="text-center">
-                                                {
-                                                    l.treatment_city_name
-                                                }
-                                            </td>
-
-                                            <td className="text-center">
-                                                {
-                                                    l.treatment
-                                                }
-                                            </td>
-
-                                            <td className="text-center">
-                                                {
-                                                    l.followup_datetime
-                                                }
-                                            </td>
-
-                                            <td className="text-center">
-                                                {
-                                                    l.patient_status
-                                                }
-                                            </td>
-
-                                            <td className="text-center">
-                                                {
-                                                    l.patient_language
-                                                }
-                                            </td>
-
-                                            <td className="text-center">
-                                                {
-                                                    l.source_name
-                                                }
-                                            </td>
-
-                                            <td className="text-center">
-
-                                                <MessageSquare className="h-4 w-4 inline" />
-
-                                            </td>
-
-                                            <td className="text-center">
-
-                                                <Link
-                                                    to={`/agent/fill-info/${l.id}`}
-                                                    state={{
-                                                        leadData:
-                                                            l,
-                                                    }}
-                                                >
-
+                                                <Link to={`/agent/fill-info/${l.id}`} state={{ leadData: l, }}>
                                                     <Pencil className="h-4 w-4 inline" />
-
                                                 </Link>
-
                                             </td>
-
-                                            <td className="text-center">
-                                                {
-                                                    l.priority
-                                                }
-                                            </td>
-
+                                            <td className="text-center">{l.priority}</td>
                                         </tr>
-
                                     )
                                 )}
 

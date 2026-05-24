@@ -12,6 +12,7 @@ import FillInfo from "./pages/FillInfo";
 import AllLeads from "./pages/AllLeads";
 
 import ProtectedRoute from "./pages/RouteProtection";
+import Appointments from "./pages/Appointments";
 
 const queryClient = new QueryClient();
 
@@ -36,14 +37,6 @@ const App = () => (
             element={
               <ProtectedRoute>
                 <CEAgentDashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/agent/fill-info"
-            element={
-              <ProtectedRoute>
-                <FillInfo />
               </ProtectedRoute>
             }
           />
@@ -74,6 +67,14 @@ const App = () => (
           <Route
             path="*"
             element={<NotFound />}
+          />
+          <Route
+            path="/agent/appointments/:id"
+            element={
+              <ProtectedRoute>
+                <Appointments />
+              </ProtectedRoute>
+            }
           />
         </Routes>
       </BrowserRouter>

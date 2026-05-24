@@ -1,5 +1,5 @@
 import SectionCard from "./SectionCard";
-import { AlertCircle, CalendarDays } from "lucide-react";
+import { AlertCircle } from "lucide-react";
 
 const LeadsLists = () => {
   return (
@@ -18,9 +18,6 @@ const LeadsLists = () => {
         <div className="grid grid-cols-1 gap-3">
           <button className="w-full bg-[image:var(--gradient-pink)] text-white py-3 rounded-md font-semibold shadow flex items-center justify-center gap-2">
             <AlertCircle className="h-4 w-4" /> Not Attempted Followup
-          </button>
-          <button className="w-full bg-[hsl(330_35%_45%)] text-white py-3 rounded-md font-semibold shadow flex items-center justify-center gap-2">
-            <CalendarDays className="h-4 w-4" /> Appointments
           </button>
         </div>
         <SectionCard title="PCFresh Leads : 0">
