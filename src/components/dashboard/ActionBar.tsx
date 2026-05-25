@@ -30,7 +30,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "../ui/button";
 
 import { agentDisposition } from "@/lib/auth";
-import { PatientData } from "./PatientDetails";
+import { PatientData } from "@/pages/types/ptDetails";
 import { SmartLeadSearch } from "./Search/Search";
 import { CityItem } from "@/pages/FillInfo";
 import { API_BASE, getToken } from "@/lib/auth";
@@ -273,28 +273,33 @@ const FormBody = ({
           )}
 
           {dispositionReason === "location_issue" && (
-            <div className="space-y-2">
-              <Label>City</Label>
-              <Select
-                value={city}
-                onValueChange={(v) => setCity(v)}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {cities.patient_city.map(
-                    (city) => (
-                      <SelectItem
-                        key={city.id}
-                        value={String(city.id)}
-                      >
-                        {city.name}
-                      </SelectItem>
-                    ))}
-                </SelectContent>
-              </Select>
-            </div>
+            // <div className="space-y-2">
+            //   <Label>City</Label>
+            //   <Select
+            //     value={city}
+            //     onValueChange={(v) => setCity(v)}
+            //   >
+            //     <SelectTrigger>
+            //       <SelectValue />
+            //     </SelectTrigger>
+            //     <SelectContent>
+            //       {cities.patient_city.map(
+            //         (city) => (
+            //           <SelectItem
+            //             key={city.id}
+            //             value={String(city.id)}
+            //           >
+            //             {city.name}
+            //           </SelectItem>
+            //         ))}
+            //     </SelectContent>
+            //   </Select>
+            // </div>
+            <Input
+              value={city}
+              placeholder="Enter Your City"
+              onChange={(e) => setCity(e.target.value)}
+            />
           )}
 
           <Textarea
