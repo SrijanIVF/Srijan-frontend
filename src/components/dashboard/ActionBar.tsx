@@ -29,7 +29,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Button } from "../ui/button";
 
-import { agentDisposition } from "@/lib/auth";
+import { agentDisposition, updateAlternateNumber } from "@/lib/auth";
 import { PatientData } from "@/pages/types/ptDetails";
 import { SmartLeadSearch } from "./Search/Search";
 import { CityItem } from "@/pages/FillInfo";
@@ -83,8 +83,7 @@ const actions = [
   {
     key: "altno" as const,
     label: "Add Alt. No.",
-    style:
-      "bg-gradient-to-br from-[hsl(225_70%_45%)] to-[hsl(235_70%_40%)]",
+    style: "bg-gradient-to-br from-[hsl(225_70%_45%)] to-[hsl(235_70%_40%)]",
   },
   {
     key: "whatsapp" as const,
@@ -118,7 +117,10 @@ const titles: Record<Exclude<FormKey, null>, string> = {
 const SubmitBtn = ({
   variant = "muted",
   children = "SUBMIT",
-}: { variant?: "muted" | "pink" | "green"; children?: React.ReactNode }) => {
+}: {
+  variant?: "muted" | "pink" | "green";
+  children?: React.ReactNode;
+}) => {
   const map = {
     muted: "bg-muted text-muted-foreground hover:bg-muted/80",
     pink: "bg-[image:var(--gradient-pink)] text-white hover:shadow-lg",
@@ -147,7 +149,10 @@ const DISPOSITION_REASONS = [
   { label: "Call Back Required", value: "call_back_later" },
   { label: "Today Call Back", value: "today_call_back" },
   { label: "Fertility Case", value: "fertility_case" },
-  { label: "Treatment Ongoing at Another Center", value: "treatment_ongoing_elsewhere" },
+  {
+    label: "Treatment Ongoing at Another Center",
+    value: "treatment_ongoing_elsewhere",
+  },
   { label: "Already Pregnant", value: "already_pregnant" },
   { label: "Already Having Baby", value: "already_having_baby" },
   { label: "Low Age", value: "low_age" },
@@ -175,6 +180,8 @@ const FormBody = ({
   const [callBackDateTime, setCallBackDateTime] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [city, setCity] = useState("");
+  const [altNumber, setAltNumber] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
 
   const [cities, setCities] = useState<{
     patient_city: CityItem[];
@@ -214,13 +221,12 @@ const FormBody = ({
   const fetchCityDropdown = async () => {
     try {
       const token = getToken();
-      const res =
-        await fetch(`${API_BASE}/core/city/`, {
-          headers: {
-            Accept: "application/json",
-            ...(token ? { Authorization: `Bearer ${token}`, } : {}),
-          },
-        });
+      const res = await fetch(`${API_BASE}/core/city/`, {
+        headers: {
+          Accept: "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      });
       const data = await res.json();
       setCities(data);
     } catch (err) {
@@ -228,11 +234,41 @@ const FormBody = ({
     }
   };
 
-  const location_reason = dispositionReason === "location_issue"
+  const location_reason = dispositionReason === "location_issue";
 
   useEffect(() => {
-    fetchCityDropdown()
-  }, [location_reason])
+    fetchCityDropdown();
+  }, [location_reason]);
+
+  const handleAddAlternateNumber = async () => {
+    const value = altNumber.trim();
+
+    if (!value) {
+      setErrorMsg("Please enter an alternate number.");
+      return;
+    }
+    if (!/^\d{10,15}$/.test(value)) {
+      setErrorMsg("Enter a valid number (10–15 digits).");
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      setErrorMsg("");
+
+      await updateAlternateNumber(patientUid, value);
+
+      setAltNumber("");
+      setOpenForm(null);
+
+      // Refresh so the updated patient (with secondary_mobile) loads
+      await refreshPatient();
+    } catch (err: any) {
+      setErrorMsg(err?.message || "Something went wrong.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   switch (formKey) {
     case "fresh":
@@ -248,10 +284,7 @@ const FormBody = ({
 
             <SelectContent>
               {DISPOSITION_REASONS.map((reason) => (
-                <SelectItem
-                  key={reason.value}
-                  value={reason.value}
-                >
+                <SelectItem key={reason.value} value={reason.value}>
                   {reason.label}
                 </SelectItem>
               ))}
@@ -265,36 +298,12 @@ const FormBody = ({
               <Input
                 type="datetime-local"
                 value={callBackDateTime}
-                onChange={(e) =>
-                  setCallBackDateTime(e.target.value)
-                }
+                onChange={(e) => setCallBackDateTime(e.target.value)}
               />
             </div>
           )}
 
           {dispositionReason === "location_issue" && (
-            // <div className="space-y-2">
-            //   <Label>City</Label>
-            //   <Select
-            //     value={city}
-            //     onValueChange={(v) => setCity(v)}
-            //   >
-            //     <SelectTrigger>
-            //       <SelectValue />
-            //     </SelectTrigger>
-            //     <SelectContent>
-            //       {cities.patient_city.map(
-            //         (city) => (
-            //           <SelectItem
-            //             key={city.id}
-            //             value={String(city.id)}
-            //           >
-            //             {city.name}
-            //           </SelectItem>
-            //         ))}
-            //     </SelectContent>
-            //   </Select>
-            // </div>
             <Input
               value={city}
               placeholder="Enter Your City"
@@ -310,11 +319,7 @@ const FormBody = ({
 
           <Button
             onClick={handleDispose}
-            disabled={
-              !patientUid ||
-              !dispositionReason ||
-              isSubmitting
-            }
+            disabled={!patientUid || !dispositionReason || isSubmitting}
             className="w-full"
           >
             {isSubmitting ? (
@@ -332,6 +337,55 @@ const FormBody = ({
         </div>
       );
 
+    case "altno":
+      return (
+        <form
+          className="space-y-4 pt-2"
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleAddAlternateNumber();
+          }}
+        >
+          <div className="space-y-2">
+            <Label htmlFor="alt-number">Alternate Number</Label>
+            <Input
+              id="alt-number"
+              type="tel"
+              inputMode="numeric"
+              autoComplete="off"
+              placeholder="Enter Alternate Number"
+              value={altNumber}
+              onChange={(e) => {
+                // digits only, max 15
+                setAltNumber(e.target.value.replace(/\D/g, "").slice(0, 15));
+                if (errorMsg) setErrorMsg("");
+              }}
+            />
+            {errorMsg && (
+              <p className="text-xs text-red-500 font-medium">{errorMsg}</p>
+            )}
+          </div>
+
+          <Button
+            type="submit"
+            disabled={!altNumber.trim() || isSubmitting}
+            className="w-full"
+          >
+            {isSubmitting ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Saving...
+              </>
+            ) : (
+              <>
+                <CheckCircle className="h-4 w-4 mr-2" />
+                Save Alternate No.
+              </>
+            )}
+          </Button>
+        </form>
+      );
+
     default:
       return <div>No Form</div>;
   }
@@ -344,12 +398,10 @@ const ActionBar = ({
   patientData: PatientData;
   refreshPatient: () => Promise<void>;
 }) => {
-
   const [openForm, setOpenForm] = useState<FormKey>(null);
 
   return (
     <section className="space-y-4">
-
       {/* STATUS BUTTONS */}
       <div className="bg-card rounded-xl p-4 shadow-[var(--shadow-card)] flex flex-wrap gap-3 justify-center">
         {statusPills.map((p) => (
@@ -398,7 +450,6 @@ const ActionBar = ({
         onOpenChange={(o) => !o && setOpenForm(null)}
       >
         <DialogContent className="sm:max-w-lg">
-
           {openForm && (
             <>
               <DialogHeader className="border-b pb-3">
@@ -415,10 +466,8 @@ const ActionBar = ({
               />
             </>
           )}
-
         </DialogContent>
       </Dialog>
-
     </section>
   );
 };

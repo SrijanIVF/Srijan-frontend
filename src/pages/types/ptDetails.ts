@@ -104,16 +104,19 @@ export interface LeadStatetype {
 }
 
 export interface PatientData {
-    uid?: string;
-    patient_city_name?: string | null;
-    treatment_city?: string | null;
-    followup_datetime?: string | null;
-    patient_name?: string | null;
-    spouse_name?: string | null;
-    patient_status?: string | null;
-    source?: string | null;
-    user_name?: string | null;
-    main_mobile?: string | null;
-    updated_at?: string | null;
-    [k: string]: unknown;
+  uid?: string;
+  patient_city_name?: string | null;
+  treatment_city?: string | null;
+  followup_datetime?: string | null;
+  patient_name?: string | null;
+  spouse_name?: string | null;
+  patient_status?: string | null;
+  source?: string | null;
+  user_name?: string | null;
+  main_mobile?: string | null;
+  primary_mobile?: string | null;
+  secondary_mobile?: string | null;
+  whatsapp_mobile?: string | null;
+  updated_at?: string | null;
+  [k: string]: unknown;
 }

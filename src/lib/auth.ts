@@ -22,7 +22,18 @@ export interface DispositionType {
   city?: string;
 }
 
-export async function login(username: string, password: string): Promise<LoginResponse> {
+export interface UpdateAlternateNumberResponse {
+  message: string;
+  data: {
+    uid: string;
+    secondary_mobile: string;
+  };
+}
+
+export async function login(
+  username: string,
+  password: string,
+): Promise<LoginResponse> {
   const res = await fetch(`${API_BASE}/auth/login/`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -37,7 +48,8 @@ export async function login(username: string, password: string): Promise<LoginRe
   }
   const token = data.access || data.token || data.access_token || "";
   if (token) localStorage.setItem("token", token);
-  if (data.refresh) localStorage.setItem("refresh_token", data.refresh as string);
+  if (data.refresh)
+    localStorage.setItem("refresh_token", data.refresh as string);
   if (data.user) localStorage.setItem("user", JSON.stringify(data.user));
   return data as LoginResponse;
 }
@@ -61,8 +73,10 @@ export function isAuthenticated(): boolean {
   return !!getToken();
 }
 
-
-export async function clickToCall(patient_uid: string) {
+export async function clickToCall(
+  patient_uid: string,
+  number_type: "primary" | "secondary" = "primary",
+) {
   const token = getToken();
   const res = await fetch(`${API_BASE}/lead/lead-click-to-call/`, {
     method: "POST",
@@ -71,14 +85,21 @@ export async function clickToCall(patient_uid: string) {
       Accept: "application/json, text/plain, */*",
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
-    body: JSON.stringify({ patient_uid }),
+    body: JSON.stringify({ patient_uid, number_type }),
   });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
-    const msg = (data && (data.detail || data.message)) || `Call failed (${res.status})`;
+    const msg =
+      (data && (data.detail || data.message || data.error)) ||
+      `Call failed (${res.status})`;
     throw new Error(typeof msg === "string" ? msg : "Call failed");
   }
-  return data as { lead_uuid?: string; call_status?: string; call_response?: string };
+  return data as {
+    lead_uuid?: string;
+    call_status?: string;
+    number_type?: string;
+    call_response?: string;
+  };
 }
 
 export async function agentDisposition(
@@ -97,33 +118,24 @@ export async function agentDisposition(
   };
 
   // only for callback case
-  if (
-    disposition === "call_back_later" && call_back_time
-  ) {
+  if (disposition === "call_back_later" && call_back_time) {
     payload.call_back_time = call_back_time;
   }
 
   // only for location case
-  if (
-    disposition === "location_issue" && city
-  ) {
+  if (disposition === "location_issue" && city) {
     payload.city = city;
   }
 
-  const res = await fetch(
-    `${API_BASE}/lead/agent-disposition/`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json, text/plain, */*",
-        ...(token
-          ? { Authorization: `Bearer ${token}` }
-          : {}),
-      },
-      body: JSON.stringify(payload),
-    }
-  );
+  const res = await fetch(`${API_BASE}/lead/agent-disposition/`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json, text/plain, */*",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: JSON.stringify(payload),
+  });
 
   const data = await res.json().catch(() => ({}));
 
@@ -132,34 +144,23 @@ export async function agentDisposition(
       (data && (data.detail || data.message)) ||
       `Disposition failed (${res.status})`;
 
-    throw new Error(
-      typeof msg === "string"
-        ? msg
-        : "Disposition failed"
-    );
+    throw new Error(typeof msg === "string" ? msg : "Disposition failed");
   }
 
   return data;
 }
 
-export async function getPatientNextDashboard(
-  signal?: AbortSignal
-) {
+export async function getPatientNextDashboard(signal?: AbortSignal) {
   const token = getToken();
 
-  const res = await fetch(
-    `${API_BASE}/lead/patient-next-dashboard/`,
-    {
-      method: "GET",
-      signal,
-      headers: {
-        "Content-Type": "application/json",
-        ...(token
-          ? { Authorization: `Bearer ${token}` }
-          : {}),
-      },
-    }
-  );
+  const res = await fetch(`${API_BASE}/lead/patient-next-dashboard/`, {
+    method: "GET",
+    signal,
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+  });
 
   const data = await res.json().catch(() => ({}));
 
@@ -168,12 +169,49 @@ export async function getPatientNextDashboard(
       (data && (data.detail || data.message)) ||
       `Request failed (${res.status})`;
 
-    throw new Error(
-      typeof msg === "string"
-        ? msg
-        : "Request failed"
-    );
+    throw new Error(typeof msg === "string" ? msg : "Request failed");
   }
 
   return data?.data ?? data;
+}
+
+/* Update the patient's alternate (secondary) mobile number.
+ * PATCH /core/patient/<uid>/alternate-number/
+ */
+export async function updateAlternateNumber(
+  patient_uid: string,
+  alternate_number: string,
+): Promise<UpdateAlternateNumberResponse> {
+  const token = getToken();
+
+  const res = await fetch(
+    `${API_BASE}/lead/patient/${patient_uid}/alternate-number/`,
+    {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json, text/plain, */*",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify({ secondary_mobile: alternate_number }),
+    },
+  );
+
+  const data = await res.json().catch(() => ({}));
+
+  if (!res.ok) {
+    const raw =
+      (data && (data.secondary_mobile?.[0] || data.detail || data.message)) ||
+      `Update failed (${res.status})`;
+
+    throw new Error(
+      typeof raw === "string"
+        ? raw
+        : Array.isArray(raw)
+          ? raw[0]
+          : "Update failed",
+    );
+  }
+
+  return data as UpdateAlternateNumberResponse;
 }
